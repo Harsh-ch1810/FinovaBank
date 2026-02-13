@@ -1,0 +1,1151 @@
+/* =========================================
+   FINOVA BANK - COMPLETE MASTER CSS
+   Clean Red & White Modern UI
+   ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+/* ================= ROOT ================= */
+
+:root {
+  --primary: #e11d48;
+  --primary-dark: #be123c;
+  --primary-light: #ffe4e6;
+
+  --white: #ffffff;
+  --bg: #fafafa;
+
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-400: #9ca3af;
+  --gray-600: #4b5563;
+  --gray-900: #111827;
+
+  --success: #10b981;
+  --danger: #ef4444;
+
+  --shadow: 0 8px 30px rgba(0,0,0,0.08);
+  --radius: 14px;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+
+/* ================= GLOBAL ================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--gray-900);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+.dashboard-container {
+  padding: 3rem 2rem;
+}
+
+.dashboard-container > * + * {
+  margin-top: 3rem;
+}
+
+/* Add spacing between major sections */
+.quick-actions {
+  margin-top: 3rem;
+}
+
+.account-info-section {
+  margin-top: 3rem;
+}
+
+/* ================= NAVBAR ================= */
+
+/* ==============================
+   NAVBAR - CLEAN RED THEME
+   ============================== */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border-bottom: 1px solid #eee;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-container {
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Brand */
+.navbar-brand {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #e11d48;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+/* Links */
+.navbar-links {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #444;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.navbar-links a:hover {
+  color: #e11d48;
+}
+
+.navbar-links a::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: #e11d48;
+  transition: 0.3s ease;
+}
+
+.navbar-links a:hover::after {
+  width: 100%;
+}
+
+/* Right Section */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-user {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #111;
+}
+
+/* Logout Button */
+.btn-secondary {
+  background: #e11d48;
+  color: white;
+  border: none;
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-secondary:hover {
+  background: #be123c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .navbar-links {
+    display: none;
+  }
+}
+
+/* ================= DASHBOARD ================= */
+
+/* ===============================
+   DASHBOARD STRUCTURE POLISH
+   =============================== */
+
+.dashboard-container > * + * {
+  margin-top: 3.5rem;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1.8rem;
+  color: #111827;
+}
+
+/* Welcome bonus */
+.welcome-bonus {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 1.2rem 1.5rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #059669;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(16,185,129,0.05);
+}
+
+/* Account info section */
+.account-info-section {
+  margin-top: 3.5rem;
+}
+
+/* Improve stat cards spacing */
+.stats-grid {
+  margin-top: 1.5rem;
+  gap: 2rem;
+}
+
+/* Make stat cards cleaner */
+.stat-card {
+  padding: 2rem;
+  border-radius: 14px;
+}
+
+/* Make balance more dominant */
+.account-balance-amount {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+.dashboard-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.security-status {
+  font-size: 1.2rem;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.account-balance-section {
+  margin-top: 1.5rem;
+}
+
+.email-value {
+  font-size: 1rem;
+  word-break: break-word;
+}
+
+
+/* ================= CARD GRID ================= */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Account Card */
+
+.account-card {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: white;
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.account-number {
+  font-size: 1.4rem;
+  margin-top: 0.5rem;
+}
+
+.account-balance-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+/* Other Cards */
+
+.premium-card,
+.stat-card {
+  background: var(--white);
+  padding: 1.8rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.card-amount {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--primary);
+}
+
+/* ================= QUICK ACTIONS ================= */
+
+.quick-actions {
+  margin-bottom: 3rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: 1.5rem;
+}
+
+.action-button {
+  background: var(--white);
+  padding: 1.2rem;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.action-button:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+/* ================= TABLE ================= */
+
+.transactions-table {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.transactions-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.transactions-table th {
+  text-align: left;
+  background: var(--gray-100);
+}
+
+.transactions-table tr:hover {
+  background: var(--primary-light);
+}
+
+/* ================= AUTH ================= */
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ffe4e6, #fff);
+}
+
+.auth-form {
+  background: var(--white);
+  padding: 3rem 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-form h2 {
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  margin-top: 0.4rem;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background: var(--primary-dark);
+}
+
+/* ================= MESSAGES ================= */
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.success {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+
+.balance-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.balance-card span {
+  font-weight: 600;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-card strong {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+
+/* ==============================
+   SEND MONEY PAGE - CLEAN MODERN
+   ============================== */
+
+.transfer-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: #f9fafb;
+}
+
+.transfer-box {
+  width: 100%;
+  max-width: 750px;
+}
+
+.transfer-form {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+/* Heading */
+.transfer-form h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.transfer-form p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+/* Balance Box */
+.balance-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+.balance-label {
+  font-weight: 600;
+  color: #be123c;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.balance-amount {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #e11d48;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 1.6rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225,29,72,0.08);
+}
+
+/* Submit button */
+.btn-submit {
+  width: 100%;
+  padding: 1rem;
+  background: #e11d48;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #be123c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(225,29,72,0.2);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Info Box */
+.transfer-info {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f3f4f6;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.transfer-info h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.transfer-info ul {
+  padding-left: 1.2rem;
+  color: #6b7280;
+}
+
+.transfer-info li {
+  margin-bottom: 0.6rem;
+}
+
+
+/* ==============================
+   APPLY LOAN PAGE - CLEAN MODERN
+   ============================== */
+
+.loan-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: #f9fafb;
+}
+
+.loan-box {
+  width: 100%;
+  max-width: 750px;
+}
+
+.loan-form {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+/* Heading */
+.loan-form h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.loan-form p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+/* Form groups */
+.loan-form .form-group {
+  margin-bottom: 1.6rem;
+}
+
+.loan-form label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.loan-form input,
+.loan-form textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+}
+
+.loan-form input:focus,
+.loan-form textarea:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225,29,72,0.08);
+}
+
+/* Min / Max helper text */
+.loan-helper {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.4rem;
+}
+
+/* Apply button */
+.loan-form .btn-submit {
+  width: 100%;
+  padding: 1rem;
+  background: #e11d48;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+  margin-top: 1rem;
+}
+
+.loan-form .btn-submit:hover:not(:disabled) {
+  background: #be123c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(225,29,72,0.2);
+}
+
+/* Loan info section */
+.loan-info {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f3f4f6;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.loan-info h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.loan-info p {
+  color: #6b7280;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+}
+
+/* ==============================
+   ACCOUNT INFORMATION FIX
+   ============================== */
+
+.account-info-section {
+  margin-top: 3rem;
+}
+
+.account-info-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1.8rem;
+  color: #111827;
+}
+
+.account-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* THIS FIXES SPACE BETWEEN THEM */
+}
+
+.account-info-card {
+  background: #ffffff;
+  padding: 1.6rem 1.8rem;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+  transition: 0.2s ease;
+}
+
+.account-info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.account-info-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.account-info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+
+/* Empty State Card */
+.empty-loans-card {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  margin-top: 2rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.empty-loans-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-loans-card p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+/* Primary Red Button */
+.btn-primary {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Table Card */
+.transactions-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+  margin-top: 2rem;
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+}
+
+.transactions-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-card th {
+  background: #f9fafb;
+  padding: 1.2rem;
+  text-align: left;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+}
+
+.transactions-card td {
+  padding: 1.2rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.transactions-card tr:hover {
+  background: #fafafa;
+}
+
+/* Date styling */
+.tx-date {
+  font-weight: 600;
+}
+
+.tx-time {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+/* Type styling */
+.tx-type {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tx-type.sent {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.tx-type.received {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+/* Name & description */
+.tx-name {
+  font-weight: 600;
+}
+
+.tx-desc {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+/* Amount */
+.tx-amount {
+  font-weight: 700;
+}
+
+.amount-negative {
+  color: #dc2626;
+}
+
+.amount-positive {
+  color: #059669;
+}
+
+/* Empty state */
+.empty-history-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  margin-top: 2rem;
+  border: 1px solid #f3f4f6;
+}
+
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.admin-header p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+/* Stats Grid */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.admin-stat-card {
+  background: white;
+  padding: 1.8rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  transition: 0.2s ease;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.admin-stat-label {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e11d48;
+}
+
+/* =========================
+   USERS TABLE
+========================= */
+
+.admin-table-wrapper {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead {
+  background: #f9fafb;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-top: 1px solid #f1f1f1;
+  font-size: 0.95rem;
+}
+
+.admin-table tbody tr:hover {
+  background: #fdf2f2;
+}
+
+/* Role Badge */
+
+.role-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.role-admin {
+  background: rgba(225, 29, 72, 0.15);
+  color: #e11d48;
+}
+
+.role-customer {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-header p {
+  color: #7A8394;
+  margin-bottom: 2rem;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-stat-label {
+  color: #7A8394;
+  font-size: 0.9rem;
+}
+
+.admin-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.admin-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-filter-bar select {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.admin-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  background: #f5f6f8;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.sub-text {
+  font-size: 0.85rem;
+  color: #7A8394;
+}
+
+.amount {
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.status-completed {
+  background: #e6f9f0;
+  color: #10B981;
+}
+
+.status-pending {
+  background: #fff4e5;
+  color: #f59e0b;
+}
+
+.status-failed {
+  background: #fdecea;
+  color: #ef4444;
+}

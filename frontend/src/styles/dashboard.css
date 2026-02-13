@@ -1,0 +1,81 @@
+/* ================= DASHBOARD ================= */
+
+.dashboard-container {
+  padding: 3rem 2rem;
+}
+
+.dashboard-container > * + * {
+  margin-top: 3rem;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1.8rem;
+}
+
+/* Card Grid */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+  gap: 2rem;
+}
+
+.account-card {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: white;
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.account-balance-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.premium-card,
+.stat-card {
+  background: var(--white);
+  padding: 1.8rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.stats-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Quick Actions */
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: 1.5rem;
+}
+
+.action-button {
+  background: var(--white);
+  padding: 1.2rem;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.action-button:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}

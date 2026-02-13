@@ -1,0 +1,31 @@
+/* ================= SEND MONEY ================= */
+
+.transfer-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.transfer-box {
+  width: 100%;
+  max-width: 750px;
+}
+
+.transfer-form {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid #eee;
+}
+
+.balance-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}

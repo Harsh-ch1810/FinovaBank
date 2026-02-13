@@ -1,0 +1,20 @@
+/* ================= LOAN PAGE ================= */
+
+.loan-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.loan-box {
+  width: 100%;
+  max-width: 750px;
+}
+
+.loan-form {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid #eee;
+}
