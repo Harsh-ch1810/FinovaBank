@@ -1,0 +1,234 @@
+/* ===== AIRBNB STYLE LOAN PAGE ===== */
+
+:root {
+  --primary: #FF385C; /* Airbnb red */
+  --primary-hover: #e03150;
+
+  --text-primary: #222222;
+  --text-secondary: #717171;
+
+  --bg-main: #f7f7f7;
+  --bg-white: #ffffff;
+
+  --border: #e5e5e5;
+
+  --success: #00A699;
+  --error: #FF5A5F;
+
+  --radius: 12px;
+}
+
+/* ===== CONTAINER ===== */
+.loan-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: var(--bg-main);
+  min-height: calc(100vh - 80px);
+}
+
+/* ===== HEADER ===== */
+.loan-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.loan-header h1 {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.loan-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ===== ALERTS ===== */
+.alert {
+  padding: 14px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background: #ffecec;
+  color: var(--error);
+}
+
+.alert-success {
+  background: #e6fffa;
+  color: var(--success);
+}
+
+/* ===== CARD ===== */
+.loan-card {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  transition: all 0.25s ease;
+}
+
+.loan-card:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+/* ===== BALANCE ===== */
+.balance-info {
+  background: #fff0f3;
+  border: 1px solid #ffd6dc;
+  color: var(--primary);
+  padding: 14px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.balance-info strong {
+  display: block;
+  font-size: 18px;
+  margin-top: 5px;
+}
+
+/* ===== FORM ===== */
+.loan-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(255,56,92,0.2);
+}
+
+/* ===== BUTTONS ===== */
+.form-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.btn-calculate {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-calculate:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-apply {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.btn-apply:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* ===== EMI SECTION ===== */
+.emi-info {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  margin-top: 20px;
+}
+
+.emi-info h3 {
+  margin-bottom: 10px;
+}
+
+.emi-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed #eee;
+}
+
+.emi-row:last-child {
+  border-bottom: none;
+}
+
+.emi-row.highlight {
+  background: #fff0f3;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+.emi-row.highlight .value {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* ===== INFO CARDS ===== */
+.loan-info {
+  margin-top: 25px;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.info-card {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: 0.2s;
+}
+
+.info-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-3px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .form-buttons {
+    grid-template-columns: 1fr;
+  }
+}

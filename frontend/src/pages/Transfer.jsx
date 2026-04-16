@@ -1,98 +1,109 @@
-import React, { useState, useContext, useEffect } from 'react';
+// src/pages/Transfer.jsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import API from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { transactionAPI, accountAPI } from '../services/api';
+import '../styles/transfer.css';
 
-const Transfer = () => {
+export default function Transfer() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { token } = useAuth();
   const [formData, setFormData] = useState({
-    receiverEmail: '',
+    receiverAccountNumber: '',
     amount: '',
     description: '',
   });
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState(0);
+  const [currentBalance, setCurrentBalance] = useState(null);
 
-useEffect(() => {
-  if (!user) return;
+  useEffect(() => {
+    const loadBalance = async () => {
+      try {
+        const result = await accountAPI.getInfo();
+        if (result.success) {
+          setCurrentBalance(result.account.balance);
+        }
+      } catch (err) {
+        console.error('Error loading balance:', err);
+      }
+    };
 
-  if (user.role === 'admin') {
-    setError('Admins cannot send money. Use Admin Dashboard.');
-    setBalance(0);
-    return;
-  }
-
-  fetchBalance();
-}, [user]);
-
-  const fetchBalance = async () => {
-    try {
-      const response = await API.get('/account/info');
-      setBalance(response.data.account.balance);
-    } catch (err) {
-      console.error('Error fetching balance:', err);
+    if (token) {
+      loadBalance();
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token, navigate]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    setError('');
-    setSuccess('');
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setSuccess('');
+    setLoading(true);
 
-    // Validation
-    if (!formData.receiverEmail || !formData.amount) {
-      setError('Please fill in all required fields');
+    if (!formData.receiverAccountNumber || !formData.amount) {
+      setError('Please fill all required fields');
       setLoading(false);
       return;
     }
 
     const amount = parseFloat(formData.amount);
+
     if (amount <= 0) {
       setError('Amount must be greater than 0');
       setLoading(false);
       return;
     }
 
-    if (amount > balance) {
+    if (currentBalance && amount > currentBalance) {
       setError('Insufficient balance');
       setLoading(false);
       return;
     }
 
     try {
-      const response = await API.post('/transaction/transfer', {
-        receiverEmail: formData.receiverEmail,
-        amount: amount,
-        description: formData.description,
-      });
+      const result = await transactionAPI.sendMoney(
+        formData.receiverAccountNumber,
+        amount,
+        formData.description
+      );
 
-      setSuccess(`Transfer successful! ₹${amount.toFixed(2)} sent to ${formData.receiverEmail}`);
+      if (result.success) {
+        setSuccess(`✅ Money transferred successfully!\nReference: ${result.transaction.id}`);
+        setFormData({
+          receiverAccountNumber: '',
+          amount: '',
+          description: '',
+        });
 
+        const updatedBalance = await accountAPI.getInfo();
+        if (updatedBalance.success) {
+          setCurrentBalance(updatedBalance.account.balance);
+        }
 
-      setFormData({
-        receiverEmail: '',
-        amount: '',
-        description: '',
-      });
-      fetchBalance();
-
-      // Redirect after success
-      setTimeout(() => navigate('/history'), 2000);
+        setTimeout(() => {
+          navigate('/transactions');
+        }, 2000);
+      } else {
+        setError(result.message);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Transfer failed. Please try again.');
+      setError('Transfer failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -101,77 +112,77 @@ useEffect(() => {
   return (
     <div className="transfer-container">
       <div className="transfer-box">
-        <div className="transfer-form">
-          <h1>💸 Send Money</h1>
-          <p>Transfer funds to another account</p>
+        <h2>💸 Send Money</h2>
 
-          {error && <div className="error">{error}</div>}
-          {success && <div className="success">{success}</div>}
-         <div className="balance-box">
-           <span className="balance-label">Available Balance</span>
-             <span className="balance-amount">₹{balance.toFixed(2)}</span>
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+
+        {currentBalance !== null && (
+          <div className="balance-info">
+            <p>Current Balance: <strong>₹{currentBalance.toLocaleString('en-IN')}</strong></p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="transfer-form">
+          {/* Receiver Account */}
+          <div className="form-group">
+            <label>Receiver Account Number *</label>
+            <input
+              type="text"
+              name="receiverAccountNumber"
+              value={formData.receiverAccountNumber}
+              onChange={handleChange}
+              placeholder="e.g., FIN123456"
+            />
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Recipient Email</label>
-              <input
-                type="email"
-                name="receiverEmail"
-                placeholder="recipient@email.com"
-                value={formData.receiverEmail}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Amount</label>
-              <input
-                type="number"
-                name="amount"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                value={formData.amount}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Description (Optional)</label>
-              <textarea
-                name="description"
-                placeholder="What is this transfer for?"
-                value={formData.description}
-                onChange={handleChange}
-                rows="3"
-              />
-            </div>
-
-            <button
-             type="submit"
-             className="btn-submit"
-            disabled={loading || user?.role === 'admin'}
-             >
-              {user?.role === 'admin' ? 'Admins cannot transfer' : 'Send Money'}
-            </button>
-          </form>
-
-          <div className="transfer-info">
-            <h3>ℹ️ Transfer Information</h3>
-            <ul>
-              <li>Transfers are processed instantly</li>
-              <li>Make sure the recipient email is correct</li>
-              <li>You can view transaction history anytime</li>
-              <li>Maximum transfer: ₹1,000,000</li>
-            </ul>
+          {/* Amount */}
+          <div className="form-group">
+            <label>Amount (₹) *</label>
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              placeholder="0.00"
+              min="1"
+              step="0.01"
+            />
           </div>
+
+          {/* Description */}
+          <div className="form-group">
+            <label>Description (Optional)</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Add a note for this transfer"
+              rows="3"
+            ></textarea>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="transfer-btn"
+            disabled={loading}
+          >
+            {loading ? '⏳ Processing...' : '💸 Send Money'}
+          </button>
+        </form>
+
+        {/* Info Box */}
+        <div className="info-box">
+          <h4>ℹ️ Transaction Info</h4>
+          <ul>
+            <li>✓ Transfer is instant and free</li>
+            <li>✓ Money will be sent to receiver immediately</li>
+            <li>✓ Both parties will receive email confirmation</li>
+            <li>✓ Minimum balance must be maintained</li>
+          </ul>
         </div>
       </div>
     </div>
   );
-};
-
-export default Transfer;
+}

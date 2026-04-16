@@ -1,0 +1,100 @@
+/* src/styles/adminfraud.css - FRAUD DETECTION */
+
+@import 'admincommon.css';
+
+.security-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  background: var(--bg-primary);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  border-top: 4px solid var(--primary);
+}
+
+.metric-card.critical { border-top-color: #d32f2f; }
+.metric-card.high { border-top-color: #ff6f00; }
+.metric-card.medium { border-top-color: #f57c00; }
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Poppins';
+  margin-bottom: 8px;
+}
+
+.metric-card.critical .metric-value { color: #d32f2f; }
+.metric-card.high .metric-value { color: #ff6f00; }
+.metric-card.medium .metric-value { color: #f57c00; }
+
+.metric-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+
+.fraud-table { width: 100%; }
+.fraud-table thead { background: var(--bg-secondary); }
+.fraud-table th { padding: 16px; font-weight: 600; color: var(--text-primary); text-align: left; }
+.fraud-table td { padding: 16px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
+
+.fraud-table tr.severity-critical { background: rgba(211, 47, 47, 0.05); }
+.fraud-table tr.severity-high { background: rgba(255, 111, 0, 0.05); }
+.fraud-table tr.severity-medium { background: rgba(245, 124, 0, 0.05); }
+
+.fraud-table strong { color: var(--primary); }
+
+.risk-score { display: flex; align-items: center; gap: 8px; }
+.score-bar { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; background: linear-gradient(90deg, var(--success), var(--danger)); }
+
+.alert-overview {
+  background: var(--bg-light);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.overview-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.overview-item { display: flex; flex-direction: column; gap: 8px; }
+.overview-item label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+.overview-item h4 { margin: 0; color: var(--text-primary); font-size: 16px; }
+
+.attempts-list { margin-top: 12px; }
+.attempts-list h4 { margin-top: 0; margin-bottom: 8px; font-size: 13px; }
+.attempt-item { display: flex; gap: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; margin-bottom: 8px; }
+
+.attempt-time { min-width: 120px; font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+.attempt-ip { min-width: 100px; font-size: 13px; color: var(--text-secondary); }
+.attempt-device { flex: 1; font-size: 13px; color: var(--text-secondary); }
+
+.details-content { display: flex; flex-direction: column; gap: 8px; }
+.details-content p { margin: 0; font-size: 14px; color: var(--text-secondary); }
+.details-content strong { color: var(--text-primary); }
+
+.recommended-actions {
+  background: var(--bg-light);
+  border-left: 4px solid var(--warning);
+}
+
+.actions-list { display: flex; flex-direction: column; gap: 8px; }
+
+.action-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.action-item.danger { background: var(--danger-light); color: var(--danger); }
+.action-item.warning { background: var(--warning-light); color: var(--warning); }
+.action-item.info { background: var(--info-light); color: var(--info); }
+
+.badge-critical { background: rgba(211, 47, 47, 0.1); color: #d32f2f; }
+
+@media (max-width: 768px) {
+  .security-metrics { grid-template-columns: repeat(2, 1fr); }
+  .overview-grid { grid-template-columns: 1fr; }
+}

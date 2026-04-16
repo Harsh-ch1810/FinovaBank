@@ -1,187 +1,331 @@
+// banking-app-backend/controllers/loanController.js
 const Loan = require('../models/Loan');
 const Account = require('../models/Account');
 const User = require('../models/User');
-const Transaction = require('../models/Transaction');
+const nodemailer = require('nodemailer');
 
-// Calculate monthly payment using loan formula
-const calculateMonthlyPayment = (principal, rate, months) => {
-  const monthlyRate = rate / 100 / 12;
-  if (monthlyRate === 0) return principal / months;
-  return (principal * (monthlyRate * Math.pow(1 + monthlyRate, months))) / (Math.pow(1 + monthlyRate, months) - 1);
-};
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
-// @route   POST /api/loan/apply
 // @desc    Apply for loan
+// @route   POST /api/loan/apply
 // @access  Private
 exports.applyLoan = async (req, res) => {
   try {
-    const { amount, monthlyIncome, loanReason } = req.body;
+    const { loanType, amount, tenureMonths, purpose } = req.body;
 
-    // Validation
-    if (!amount || !monthlyIncome || !loanReason) {
-      return res.status(400).json({ message: 'Please provide all required fields' });
+    if (!loanType || !amount || !tenureMonths) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields required',
+      });
     }
 
-    if (amount < 1000 || amount > 1000000) {
-      return res.status(400).json({ message: 'Loan amount must be between $1000 and $1000000' });
-    }
-
-    if (monthlyIncome < 1000) {
-      return res.status(400).json({ message: 'Monthly income must be at least $1000' });
-    }
-
-    // Check if user already has pending loan
-    const existingLoan = await Loan.findOne({ userId: req.user.id, status: 'pending' });
-    if (existingLoan) {
-      return res.status(400).json({ message: 'You already have a pending loan application' });
-    }
-
-    // Get account
     const account = await Account.findOne({ userId: req.user.id });
     if (!account) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Account not found',
+      });
     }
 
     // Create loan
     const loan = new Loan({
       userId: req.user.id,
       accountId: account._id,
+      loanType,
       amount,
-      monthlyIncome,
-      loanReason,
-      status: 'pending',
+      tenureMonths,
+      purpose,
     });
 
-    // Calculate monthly payment
-    loan.monthlyPayment = calculateMonthlyPayment(amount, loan.interestRate, loan.loanTerm);
-    loan.remainingAmount = amount;
+    // Calculate EMI
+    loan.calculateEMI();
 
     await loan.save();
 
+    // Send confirmation email
+    const user = await User.findById(req.user.id);
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: 'Loan Application Submitted',
+      html: `
+        <h3>Loan Application Received</h3>
+        <p>Dear ${user.firstName},</p>
+        <p>Your loan application has been submitted successfully.</p>
+        <p><strong>Application Details:</strong></p>
+        <ul>
+          <li>Type: ${loanType} Loan</li>
+          <li>Amount: ₹${amount}</li>
+          <li>Tenure: ${tenureMonths} months</li>
+          <li>Monthly EMI: ₹${loan.monthlyEMI}</li>
+          <li>Total Payable: ₹${loan.totalPayable}</li>
+          <li>Status: Pending Review</li>
+        </ul>
+        <p>We will review your application and notify you within 2-3 business days.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     res.status(201).json({
-      message: 'Loan application submitted successfully',
+      success: true,
+      message: 'Loan application submitted',
       loan: {
-        _id: loan._id,
+        id: loan._id,
+        type: loan.loanType,
         amount: loan.amount,
-        monthlyPayment: loan.monthlyPayment.toFixed(2),
+        monthlyEMI: loan.monthlyEMI,
+        totalPayable: loan.totalPayable,
         status: loan.status,
       },
     });
   } catch (error) {
-    console.error('Apply loan error:', error);
-    res.status(500).json({ message: 'Error applying for loan', error: error.message });
+    console.error('Loan error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Loan application failed',
+      error: error.message,
+    });
   }
 };
 
-// @route   GET /api/loan/myloans
-// @desc    Get user's loans
+// @desc    Get user loans
+// @route   GET /api/loan/my-loans
 // @access  Private
-exports.getMyLoans = async (req, res) => {
+exports.getUserLoans = async (req, res) => {
   try {
     const loans = await Loan.find({ userId: req.user.id }).sort({ createdAt: -1 });
 
     res.status(200).json({
-      message: 'Loans retrieved',
-      loans,
-      total: loans.length,
+      success: true,
+      count: loans.length,
+      loans: loans.map((loan) => ({
+        id: loan._id,
+        type: loan.loanType,
+        amount: loan.amount,
+        monthlyEMI: loan.monthlyEMI,
+        totalPayable: loan.totalPayable,
+        amountPaid: loan.amountPaid,
+        remainingAmount: loan.remainingAmount,
+        emisPaid: loan.emisPaid,
+        status: loan.status,
+        createdAt: loan.createdAt,
+      })),
     });
   } catch (error) {
-    console.error('Get loans error:', error);
-    res.status(500).json({ message: 'Error retrieving loans', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch loans',
+      error: error.message,
+    });
   }
 };
 
-// @route   GET /api/loan/:id
 // @desc    Get loan details
+// @route   GET /api/loan/:id
 // @access  Private
 exports.getLoanDetails = async (req, res) => {
   try {
-    const loan = await Loan.findById(req.params.id).populate('userId', 'name email').populate('approvedBy', 'name');
-
-    if (!loan) {
-      return res.status(404).json({ message: 'Loan not found' });
-    }
-
-    // Check authorization
-    if (loan.userId._id.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Not authorized to view this loan' });
-    }
-
-    res.status(200).json({
-      message: 'Loan details retrieved',
-      loan,
-    });
-  } catch (error) {
-    console.error('Get loan details error:', error);
-    res.status(500).json({ message: 'Error retrieving loan details', error: error.message });
-  }
-};
-
-// @route   POST /api/loan/:id/payment
-// @desc    Make loan payment
-// @access  Private
-exports.makeLoanPayment = async (req, res) => {
-  try {
-    const { amount } = req.body;
-
     const loan = await Loan.findById(req.params.id);
+
     if (!loan) {
-      return res.status(404).json({ message: 'Loan not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Loan not found',
+      });
     }
 
-    // Check authorization
     if (loan.userId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to pay this loan' });
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized',
+      });
     }
-
-    if (loan.status !== 'disbursed') {
-      return res.status(400).json({ message: 'Loan is not in disbursed status' });
-    }
-
-    const account = await Account.findOne({ userId: req.user.id });
-    if (account.balance < amount) {
-      return res.status(400).json({ message: 'Insufficient balance for payment' });
-    }
-
-    // Update loan
-    loan.totalPaidAmount += amount;
-    loan.remainingAmount = loan.amount - loan.totalPaidAmount;
-
-    if (loan.remainingAmount <= 0) {
-      loan.status = 'closed';
-    }
-
-    // Create transaction
-    const transaction = new Transaction({
-      senderId: req.user.id,
-      senderAccountId: account._id,
-      senderName: (await User.findById(req.user.id)).name,
-      receiverId: null,
-      receiverName: 'Loan Payment',
-      amount,
-      transactionType: 'loan_payment',
-      status: 'completed',
-      reference: 'LPY' + Date.now(),
-      description: `Loan payment for loan ${loan._id}`,
-    });
-
-    // Update account
-    account.balance -= amount;
-
-    await loan.save();
-    await transaction.save();
-    await account.save();
 
     res.status(200).json({
-      message: 'Payment processed successfully',
+      success: true,
       loan: {
-        totalPaid: loan.totalPaidAmount,
-        remaining: loan.remainingAmount,
+        id: loan._id,
+        type: loan.loanType,
+        amount: loan.amount,
+        interestRate: loan.interestRate,
+        tenureMonths: loan.tenureMonths,
+        monthlyEMI: loan.monthlyEMI,
+        totalPayable: loan.totalPayable,
+        amountPaid: loan.amountPaid,
+        remainingAmount: loan.remainingAmount,
+        emisPaid: loan.emisPaid,
         status: loan.status,
+        approvalDate: loan.approvalDate,
       },
     });
   } catch (error) {
-    console.error('Loan payment error:', error);
-    res.status(500).json({ message: 'Error processing loan payment', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch loan',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Admin: Approve loan
+// @route   POST /api/loan/:id/approve
+// @access  Private (Admin)
+exports.approveLoan = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only admin can approve',
+      });
+    }
+
+    const loan = await Loan.findById(req.params.id).populate('userId');
+
+    if (!loan) {
+      return res.status(404).json({
+        success: false,
+        message: 'Loan not found',
+      });
+    }
+
+    loan.approve();
+    await loan.save();
+
+    // Send approval email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: loan.userId.email,
+      subject: 'Loan Approved!',
+      html: `
+        <h3>Loan Approved ✓</h3>
+        <p>Dear ${loan.userId.firstName},</p>
+        <p>Your loan application has been approved!</p>
+        <p><strong>Approved Details:</strong></p>
+        <ul>
+          <li>Amount: ₹${loan.amount}</li>
+          <li>Monthly EMI: ₹${loan.monthlyEMI}</li>
+          <li>Tenure: ${loan.tenureMonths} months</li>
+        </ul>
+        <p>The amount will be disbursed within 2 business days.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      success: true,
+      message: 'Loan approved',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Approval failed',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Admin: Reject loan
+// @route   POST /api/loan/:id/reject
+// @access  Private (Admin)
+exports.rejectLoan = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only admin can reject',
+      });
+    }
+
+    const { reason } = req.body;
+
+    const loan = await Loan.findById(req.params.id).populate('userId');
+
+    if (!loan) {
+      return res.status(404).json({
+        success: false,
+        message: 'Loan not found',
+      });
+    }
+
+    loan.reject(reason);
+    await loan.save();
+
+    // Send rejection email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: loan.userId.email,
+      subject: 'Loan Application Status',
+      html: `
+        <h3>Loan Application Decision</h3>
+        <p>Dear ${loan.userId.firstName},</p>
+        <p>Your loan application has been rejected.</p>
+        <p><strong>Reason:</strong> ${reason}</p>
+        <p>You can reapply after 30 days or contact support.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      success: true,
+      message: 'Loan rejected',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Rejection failed',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Calculate EMI (for estimation)
+// @route   POST /api/loan/calculate-emi
+// @access  Public
+exports.calculateEMI = async (req, res) => {
+  try {
+    const { amount, tenureMonths, interestRate = 8.5 } = req.body;
+
+    if (!amount || !tenureMonths) {
+      return res.status(400).json({
+        success: false,
+        message: 'Amount and tenure required',
+      });
+    }
+
+    // Calculate using formula
+    const monthlyRate = interestRate / 12 / 100;
+    const numerator = monthlyRate * Math.pow(1 + monthlyRate, tenureMonths);
+    const denominator = Math.pow(1 + monthlyRate, tenureMonths) - 1;
+    const monthlyEMI = Math.round((amount * numerator) / denominator);
+    const totalPayable = monthlyEMI * tenureMonths;
+    const totalInterest = totalPayable - amount;
+
+    res.status(200).json({
+      success: true,
+      emiCalculation: {
+        amount,
+        tenureMonths,
+        interestRate,
+        monthlyEMI,
+        totalPayable,
+        totalInterest,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Calculation failed',
+      error: error.message,
+    });
   }
 };

@@ -1,14 +1,16 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthContext } from './context/AuthContext';
-
-// Components
-import Navbar from './components/Navbar';
+// src/App.jsx - FIXED (Proper Admin vs User Dashboard Routing)
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import PrivateRoute from './components/PrivateRoute';
+import Navbar from './components/Navbar';
 
 // Pages - Auth
-import Login from './pages/Login';
 import Register from './pages/Register';
+import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Pages - User
 import Dashboard from './pages/Dashboard';
@@ -17,82 +19,128 @@ import TransactionHistory from './pages/TransactionHistory';
 import ApplyLoan from './pages/ApplyLoan';
 import MyLoans from './pages/MyLoans';
 
+// NEW FEATURES
+import QuickTransfer from './pages/QuickTransfer';
+import FinovaCash from './pages/FinovaCash';
+import Insurance from './pages/Insurance';
+
+// BANKING SERVICES
+import Cards from './pages/Cards';
+import Investments from './pages/Investments';
+import SavingsGoal from './pages/SavingsGoal';
+import MobileRecharge from './pages/MobileRecharge';
+
 // Pages - Admin
 import AdminDashboard from './pages/AdminDashboard';
-import AdminTransactions from './pages/AdminTransactions';
 import AdminLoans from './pages/AdminLoans';
+import AdminUsers from './pages/AdminUsers';
+import AdminAccounts from './pages/AdminAccounts';
+import AdminTransactions from './pages/AdminTransactions';
+import AdminFraudDetection from './pages/AdminFraudDetection';
+import AdminSettings from './pages/AdminSettings';
+import AdminReports from './pages/AdminReports';
 
-// Styles
-// import './styles/redesign.css';
-import './styles/base.css';
-import './styles/navbar.css';
-import './styles/dashboard.css';
-import './styles/auth.css';
-import './styles/transfer.css';
-import './styles/loan.css';
-import './styles/admin.css';
+import './App.css';
 
+// 🔥 Layout Controller (handles navbar visibility)
+function Layout() {
+  const location = useLocation();
 
-function App() {
-  const { user, loading } = useContext(AuthContext);
+  // Routes where navbar should be hidden
+  const hideNavbarRoutes = ['/login', '/admin-login', '/register', '/forgot-password'];
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
-  if (loading) {
-    return (
-      <div className="loading">
-        Loading...
-      </div>
-    );
-  }
+  // ✅ Check if current route is an admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <Router>
-      {user && <Navbar />}
+    <>
+      {/* ✅ Show main Navbar ONLY on non-admin user routes */}
+      {!shouldHideNavbar && !isAdminRoute && <Navbar />}
+
       <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
+        {/* ==================== PUBLIC ROUTES ==================== */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* User Routes (Protected) */}
-        <Route
-          path="/dashboard"
-          element={<PrivateRoute component={Dashboard} requiredRole="customer" />}
-        />
-        <Route
-          path="/transfer"
-          element={<PrivateRoute component={Transfer} requiredRole="customer" />}
-        />
-        <Route
-          path="/history"
-          element={<PrivateRoute component={TransactionHistory} requiredRole="customer" />}
-        />
-        <Route
-          path="/apply-loan"
-          element={<PrivateRoute component={ApplyLoan} requiredRole="customer" />}
-        />
-        <Route
-          path="/my-loans"
-          element={<PrivateRoute component={MyLoans} requiredRole="customer" />}
-        />
+        {/* ==================== USER ROUTES ==================== */}
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/transfer" element={<PrivateRoute><Transfer /></PrivateRoute>} />
+        <Route path="/transactions" element={<PrivateRoute><TransactionHistory /></PrivateRoute>} />
+        <Route path="/apply-loan" element={<PrivateRoute><ApplyLoan /></PrivateRoute>} />
+        <Route path="/my-loans" element={<PrivateRoute><MyLoans /></PrivateRoute>} />
 
-        {/* Admin Routes (Protected) */}
-        <Route
-          path="/admin/dashboard"
-          element={<PrivateRoute component={AdminDashboard} requiredRole="admin" />}
-        />
-        <Route
-          path="/admin/transactions"
-          element={<PrivateRoute component={AdminTransactions} requiredRole="admin" />}
-        />
-        <Route
-          path="/admin/loans"
-          element={<PrivateRoute component={AdminLoans} requiredRole="admin" />}
+        {/* NEW FEATURES */}
+        <Route path="/quick-transfer" element={<PrivateRoute><QuickTransfer /></PrivateRoute>} />
+        <Route path="/finova-cash" element={<PrivateRoute><FinovaCash /></PrivateRoute>} />
+        <Route path="/insurance" element={<PrivateRoute><Insurance /></PrivateRoute>} />
+
+        {/* BANKING SERVICES */}
+        <Route path="/cards" element={<PrivateRoute><Cards /></PrivateRoute>} />
+        <Route path="/investments" element={<PrivateRoute><Investments /></PrivateRoute>} />
+        <Route path="/savings-goal" element={<PrivateRoute><SavingsGoal /></PrivateRoute>} />
+        <Route path="/mobile-recharge" element={<PrivateRoute><MobileRecharge /></PrivateRoute>} />
+
+        {/* ==================== ADMIN ROUTES ==================== */}
+        {/* Main Admin Dashboard */}
+        <Route 
+          path="/admin/dashboard" 
+          element={<PrivateRoute requiredRole="admin"><AdminDashboard /></PrivateRoute>} 
         />
 
-        {/* Default Routes */}
-        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+        {/* Admin Sub-pages */}
+        <Route 
+          path="/admin/loans" 
+          element={<PrivateRoute requiredRole="admin"><AdminLoans /></PrivateRoute>} 
+        />
+        <Route 
+          path="/admin/users" 
+          element={<PrivateRoute requiredRole="admin"><AdminUsers /></PrivateRoute>} 
+        />
+        <Route 
+          path="/admin/accounts" 
+          element={<PrivateRoute requiredRole="admin"><AdminAccounts /></PrivateRoute>} 
+        />
+        <Route 
+          path="/admin/transactions" 
+          element={<PrivateRoute requiredRole="admin"><AdminTransactions /></PrivateRoute>} 
+        />
+        <Route 
+          path="/admin/fraud" 
+          element={<PrivateRoute requiredRole="admin"><AdminFraudDetection /></PrivateRoute>} 
+        />
+        <Route 
+          path="/admin/settings" 
+          element={<PrivateRoute requiredRole="admin"><AdminSettings /></PrivateRoute>} 
+        />
+        <Route 
+          path="/admin/reports" 
+          element={<PrivateRoute requiredRole="admin"><AdminReports /></PrivateRoute>} 
+        />
+
+        {/* ==================== DEFAULT REDIRECTS ==================== */}
+        {/* Root path - redirects based on user role */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Catch-all - redirects to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </Router>
+    </>
+  );
+}
+
+// 🔥 Main App with Error Boundary
+function App() {
+  return (
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <Layout />
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -1,0 +1,711 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --primary: #667eea;
+  --primary-hover: #5568d3;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --text-primary: #1a1a1a;
+  --text-secondary: #717171;
+  --bg: #ffffff;
+  --bg-soft: #f9fafb;
+  --border: #e5e7eb;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ================= CONTAINER ================= */
+.mobile-recharge-container {
+  min-height: 100vh;
+  background: var(--bg-soft);
+  padding: 40px 24px;
+  margin: 0 auto;
+}
+
+/* ================= HEADER ================= */
+.recharge-header {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 40px;
+  box-shadow: none;
+}
+
+.recharge-header h1 {
+  font-family: 'Poppins';
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ================= TABS ================= */
+.recharge-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  background: var(--bg);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  background: var(--bg-soft);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.tab-btn:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ================= RECHARGE SECTION ================= */
+.recharge-section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ================= QUICK NUMBERS ================= */
+.quick-numbers {
+  background: var(--bg);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.quick-numbers h3 {
+  font-family: 'Poppins';
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.saved-numbers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.quick-number-btn {
+  padding: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.quick-number-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.quick-number-btn.add-new {
+  background: var(--bg-soft);
+  color: var(--primary);
+  border: 2px dashed var(--primary);
+  box-shadow: none;
+}
+
+.quick-number-btn.add-new:hover {
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.quick-number-btn .number {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.quick-number-btn .name {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.quick-number-btn .operator {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* ================= RECHARGE FORM ================= */
+.recharge-form {
+  background: var(--bg);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.form-section {
+  margin-bottom: 28px;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+.form-section h3 {
+  font-family: 'Poppins';
+  margin: 0 0 18px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: var(--bg-soft);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ================= OPERATOR BUTTONS ================= */
+.operator-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.operator-btn {
+  padding: 14px 16px;
+  background: var(--bg-soft);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  color: var(--text-primary);
+}
+
+.operator-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+.operator-logo {
+  font-size: 28px;
+}
+
+.operator-btn.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* ================= PLANS SECTION ================= */
+.plans-section {
+  background: var(--bg-soft);
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+}
+
+.plans-section h3 {
+  font-family: 'Poppins';
+  margin: 0 0 18px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.plan-card {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.plan-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.plan-card.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.plan-amount {
+  font-family: 'Poppins';
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.plan-card.selected .plan-amount {
+  color: white;
+}
+
+.plan-validity {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plan-card.selected .plan-validity {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.plan-details {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.plan-card.selected .plan-details {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.plan-details p {
+  margin: 4px 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  background: var(--success);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* ================= RECHARGE BUTTON ================= */
+.btn-recharge {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.btn-recharge:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-recharge:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= BILL PAYMENT FORM ================= */
+.bill-payment-form {
+  background: var(--bg);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.bill-payment-form h3 {
+  font-family: 'Poppins';
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bill-info {
+  background: #fef3c7;
+  padding: 16px;
+  border-radius: 10px;
+  margin: 16px 0;
+  border-left: 4px solid var(--warning);
+}
+
+.bill-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.btn-pay-bill {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.btn-pay-bill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+/* ================= RECHARGE HISTORY ================= */
+.recharge-history {
+  background: var(--bg);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+
+.recharge-history h2 {
+  font-family: 'Poppins';
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.no-history {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  background: var(--bg-soft);
+  border-radius: 10px;
+  border-left: 5px solid var(--primary);
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--primary);
+  transition: all 0.3s ease;
+}
+
+.history-item:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.history-icon {
+  font-size: 32px;
+  min-width: 50px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.history-details {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.history-details h4 {
+  margin: 0 0 4px 0;
+  font-family: 'Poppins';
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.history-details p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.history-amount {
+  text-align: right;
+}
+
+.history-amount .amount {
+  margin: 0;
+  font-family: 'Poppins';
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.history-amount .date {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.history-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-status.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.history-status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ================= BENEFITS SECTION ================= */
+.recharge-benefits {
+  background: var(--bg);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.recharge-benefits h2 {
+  font-family: 'Poppins';
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.benefit-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.benefit-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.benefit-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.benefit-card h4 {
+  font-family: 'Poppins';
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.benefit-card p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.95;
+  line-height: 1.4;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .mobile-recharge-container {
+    padding: 35px 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-recharge-container {
+    padding: 30px 18px;
+  }
+
+  .recharge-header h1 {
+    font-size: 24px;
+  }
+
+  .recharge-form,
+  .bill-payment-form,
+  .recharge-history,
+  .recharge-benefits,
+  .quick-numbers {
+    padding: 20px 16px;
+  }
+
+  .operator-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .plans-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .history-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .history-amount {
+    text-align: left;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .saved-numbers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-recharge-container {
+    padding: 24px 14px;
+  }
+
+  .recharge-header h1 {
+    font-size: 20px;
+  }
+
+  .recharge-tabs {
+    flex-direction: column;
+  }
+
+  .tab-btn {
+    padding: 12px 16px;
+  }
+
+  .operator-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .saved-numbers {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================= SCROLLBAR STYLING ================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

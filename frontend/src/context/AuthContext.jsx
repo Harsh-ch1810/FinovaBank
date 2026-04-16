@@ -1,125 +1,185 @@
-import React, { createContext, useState, useEffect } from 'react';
-import API from '../services/api';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [account, setAccount] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Check if user is already logged in (on app load)
+  // ==================== LOAD FROM STORAGE ON MOUNT ====================
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      verifyToken(token);
-    } else {
-      setLoading(false);
+    const savedToken = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    const savedAccount = localStorage.getItem('account');
+
+    if (savedToken && savedUser) {
+      setToken(savedToken);
+      setUser(JSON.parse(savedUser));
+      if (savedAccount) setAccount(JSON.parse(savedAccount));
     }
   }, []);
 
-  // Verify token validity
-  const verifyToken = async (token) => {
+  // ==================== AUTO-SAVE ACCOUNT TO LOCALSTORAGE ====================
+  useEffect(() => {
+    if (account) {
+      localStorage.setItem('account', JSON.stringify(account));
+      console.log('✅ Account saved to localStorage:', account.balance);
+    }
+  }, [account]);
+
+  // ==================== SAFE SETACCOUNT - Updates state AND localStorage ====================
+  const safeSetAccount = useCallback((newAccount) => {
+    console.log('🔄 safeSetAccount called:', newAccount.balance);
+    setAccount(newAccount);
+    localStorage.setItem('account', JSON.stringify(newAccount));
+  }, []);
+
+  // ==================== REGISTER ====================
+  const register = async (userData) => {
+    setLoading(true);
+    setError(null);
     try {
-      // Set auth header
-      API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      // Get user info
-      const response = await API.get('/account/info');
-      const userData = {
-        ...response.data.user,
-        token: token,
-      };
-      setUser(userData);
-      setError('');
+      const response = await fetch('http://localhost:5189/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUser(data.user);
+        safeSetAccount(data.account);
+        setToken(data.token);
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('account', JSON.stringify(data.account));
+
+        return { success: true };
+      } else {
+        setError(data.message);
+        return { success: false, message: data.message };
+      }
     } catch (err) {
-      console.error('Token verification failed:', err);
-      localStorage.removeItem('token');
-      setUser(null);
+      return { success: false, message: 'Registration failed' };
     } finally {
       setLoading(false);
     }
   };
 
-  // Register user
-  const register = async (name, email, password) => {
-    try {
-      setError('');
-      const response = await API.post('/auth/register', {
-        name,
-        email,
-        password,
-      });
-
-      const { token, user: userData } = response.data;
-
-      // Save token
-      localStorage.setItem('token', token);
-      API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      // Set user
-      setUser({
-        ...userData,
-        token,
-      });
-
-      return userData;
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Registration failed';
-      setError(errorMsg);
-      throw err;
-    }
-  };
-
-  // Login user
+  // ==================== LOGIN ====================
   const login = async (email, password) => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setError('');
-      const response = await API.post('/auth/login', {
-        email,
-        password,
+      const response = await fetch('http://localhost:5189/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      const { token, user: userData } = response.data;
+      const data = await response.json();
 
-      // Save token
-      localStorage.setItem('token', token);
-      API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      if (data.success) {
+        setUser(data.user);
+        safeSetAccount(data.account);
+        setToken(data.token);
 
-      // Set user
-      setUser({
-        ...userData,
-        token,
-      });
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('account', JSON.stringify(data.account));
 
-      return userData;
+        return { success: true };
+      } else {
+        setError(data.message);
+        return { success: false, message: data.message };
+      }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Login failed';
-      setError(errorMsg);
-      throw err;
+      return { success: false, message: 'Login failed' };
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Logout user
+  // ==================== LOGOUT ====================
   const logout = () => {
-    localStorage.removeItem('token');
-    delete API.defaults.headers.common['Authorization'];
     setUser(null);
-    setError('');
+    setAccount(null);
+    setToken(null);
+    localStorage.clear();
+    window.location.href = '/login';
   };
+
+  // ==================== FETCH ACCOUNT FROM SERVER ====================
+  const getAccountInfo = useCallback(async () => {
+    if (!token) {
+      console.warn('⚠️ No token available');
+      return;
+    }
+
+    try {
+      console.log('📍 Fetching account from server...');
+      const response = await fetch('http://localhost:5189/api/account/info', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.account) {
+        console.log('✅ Server account balance:', data.account.balance);
+        safeSetAccount(data.account);
+        return data.account;
+      } else {
+        console.warn('⚠️ Server returned invalid data:', data);
+        return null;
+      }
+    } catch (err) {
+      console.error('❌ Error fetching account:', err);
+      return null;
+    }
+  }, [token, safeSetAccount]);
+
+  // ==================== UPDATE BALANCE LOCALLY (FOR INVESTMENTS) ====================
+  // This is the key function that investments page uses
+  const updateBalance = useCallback((newBalance) => {
+    console.log('💰 updateBalance called:', newBalance);
+    if (account) {
+      const updatedAccount = {
+        ...account,
+        balance: newBalance,
+      };
+      safeSetAccount(updatedAccount);
+      console.log('✅ Balance updated locally and saved');
+    }
+  }, [account, safeSetAccount]);
 
   const value = {
     user,
+    account,
+    setAccount: safeSetAccount,  // ✅ Use safe version
+    updateBalance,                // ✅ NEW: For investments page
+    token,
     loading,
     error,
     register,
     login,
     logout,
+    getAccountInfo,
+    isAuthenticated: !!token,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
 };

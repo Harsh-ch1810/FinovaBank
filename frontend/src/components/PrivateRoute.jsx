@@ -1,30 +1,20 @@
-import React, { useContext } from 'react';
+// banking-app-frontend/src/components/PrivateRoute.jsx
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
-const PrivateRoute = ({ component: Component, requiredRole }) => {
-  const { user, loading } = useContext(AuthContext);
+export default function PrivateRoute({ children, requiredRole = null }) {
+  const { token, user } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="loading">
-        Loading...
-      </div>
-    );
-  }
-
-  // Check if user is authenticated
-  if (!user) {
+  // No token = not authenticated
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // Check if user has required role
-  if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
+  // Check role if required
+  if (requiredRole && user?.role !== requiredRole) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // User is authenticated and has required role
-  return <Component />;
-};
-
-export default PrivateRoute;
+  return children;
+}

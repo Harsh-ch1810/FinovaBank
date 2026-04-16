@@ -1,0 +1,410 @@
+/* src/styles/adminDashboard.css - UPDATED: Full Width Layout */
+
+@import 'admincommon.css';
+
+/* Override padding for full width */
+.admin-content {
+  padding: 0 !important;
+}
+
+/* Dashboard Content Padding */
+.admin-content > * {
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.admin-header {
+  padding-left: 32px;
+  padding-right: 32px;
+  padding-top: 32px;
+  padding-bottom: 24px;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+  padding: 0 32px;
+}
+
+.metric-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 16px;
+  transition: all 0.3s ease;
+  border-left: 4px solid #667eea;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #999999;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222222;
+  margin: 8px 0 0 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.metric-change {
+  font-size: 12px;
+  color: #1fb981;
+  margin-top: 4px;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+  padding: 0 32px;
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card-header h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #222222;
+  margin: 0;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #F44336;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Pending Table */
+.pending-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+.pending-table thead {
+  background: #f8f9fa;
+}
+
+.pending-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #999999;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pending-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666666;
+}
+
+.pending-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.pending-section {
+  margin-top: 16px;
+}
+
+/* Loan Status Grid */
+.loan-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.status-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.status-icon.approved { background: #1fb981; }
+.status-icon.pending { background: #f59e0b; }
+.status-icon.rejected { background: #F44336; }
+.status-icon.disbursed { background: #06b6d4; }
+
+.status-label {
+  font-size: 12px;
+  color: #999999;
+  margin: 0;
+  font-weight: 600;
+}
+
+.status-count {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222222;
+  margin: 4px 0 0 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Activities List */
+.activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px dashed #e0e0e0;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-type {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+.activity-message {
+  font-size: 12px;
+  color: #666666;
+  margin: 4px 0 0 0;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #999999;
+  white-space: nowrap;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 40px;
+  padding: 0 32px;
+}
+
+.quick-actions h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #222222;
+  margin: 0 0 20px 0;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.action-btn {
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.action-btn:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.action-icon {
+  font-size: 32px;
+}
+
+.action-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222222;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #667eea;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.btn-primary:hover {
+  background: #5568d3;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-content > *,
+  .admin-header,
+  .metrics-grid,
+  .dashboard-grid,
+  .quick-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .loan-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-header h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content > *,
+  .admin-header,
+  .metrics-grid,
+  .dashboard-grid,
+  .quick-actions {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .admin-header h1 {
+    font-size: 20px;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    padding: 16px;
+  }
+
+  .dashboard-card {
+    padding: 16px;
+  }
+}

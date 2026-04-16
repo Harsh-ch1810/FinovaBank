@@ -1,169 +1,209 @@
+// backend/controllers/transactionController.js
+
 const Transaction = require('../models/Transaction');
 const Account = require('../models/Account');
 const User = require('../models/User');
+const nodemailer = require('nodemailer');
 
-// Generate unique reference number
-const generateReference = () => {
-  return 'TXN' + Date.now() + Math.floor(Math.random() * 1000);
-};
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
-// @route   POST /api/transaction/transfer
-// @desc    Transfer money between users
-// @access  Private
-exports.transfer = async (req, res) => {
+// ==================== SEND MONEY ====================
+exports.sendMoney = async (req, res) => {
   try {
-    const { receiverEmail, amount, description } = req.body;
+    let { receiverAccountNumber, amount, description } = req.body;
 
-    // Validation
-    if (!receiverEmail || !amount) {
-      return res.status(400).json({ message: 'Please provide all required fields' });
+    if (!receiverAccountNumber || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Receiver account and amount required',
+      });
     }
 
     if (amount <= 0) {
-      return res.status(400).json({ message: 'Amount must be greater than 0' });
+      return res.status(400).json({
+        success: false,
+        message: 'Amount must be greater than 0',
+      });
     }
+
+    const normalizedAccountNumber = receiverAccountNumber.trim();
 
     // Get sender account
     const senderAccount = await Account.findOne({ userId: req.user.id });
+
     if (!senderAccount) {
-      return res.status(404).json({ message: 'Sender account not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Your account not found',
+      });
     }
 
-    // Check balance
-    if (senderAccount.balance < amount) {
-      return res.status(400).json({ message: 'Insufficient balance' });
-    }
+    // Case-insensitive receiver search
+    const receiverAccount = await Account.findOne({
+      accountNumber: {
+        $regex: `^${normalizedAccountNumber}$`,
+        $options: 'i',
+      },
+    });
 
-    // Get receiver user
-    const receiver = await User.findOne({ email: receiverEmail });
-    if (!receiver) {
-      return res.status(404).json({ message: 'Receiver not found' });
-    }
-
-    // Get receiver account
-    const receiverAccount = await Account.findOne({ userId: receiver._id });
     if (!receiverAccount) {
-      return res.status(404).json({ message: 'Receiver account not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Receiver account not found',
+      });
     }
 
-    // Get sender user
+    // Prevent self transfer
+    if (senderAccount._id.toString() === receiverAccount._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot transfer to your own account',
+      });
+    }
+
+    // Balance check
+    if (senderAccount.balance < amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient balance',
+      });
+    }
+
+    // Get users
     const sender = await User.findById(req.user.id);
+    const receiver = await User.findById(receiverAccount.userId);
+
+    if (!sender || !receiver) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Generate reference
+    const reference = `TXN${Date.now()}`;
 
     // Create transaction
     const transaction = new Transaction({
       senderId: req.user.id,
       senderAccountId: senderAccount._id,
-      senderName: sender.name,
-      senderEmail: sender.email,
-      receiverId: receiver._id,
+      senderAccountNumber: senderAccount.accountNumber,
+
+      receiverId: receiverAccount.userId,
       receiverAccountId: receiverAccount._id,
-      receiverName: receiver.name,
-      receiverEmail: receiver.email,
+      receiverAccountNumber: receiverAccount.accountNumber,
+
       amount,
       transactionType: 'transfer',
-      status: 'pending',
-      description,
-      reference: generateReference(),
-      fee: 0,
+      description: description || 'Money Transfer',
+      reference,
+      status: 'completed',
     });
-
-    // Update balances
-    senderAccount.balance -= amount;
-    senderAccount.totalTransactionsAmount += amount;
-    senderAccount.totalTransactionsCount += 1;
-    senderAccount.updatedAt = Date.now();
-
-    receiverAccount.balance += amount;
-    receiverAccount.totalTransactionsAmount += amount;
-    receiverAccount.totalTransactionsCount += 1;
-    receiverAccount.updatedAt = Date.now();
-
-    // Mark transaction as completed
-    transaction.status = 'completed';
-    transaction.completedAt = Date.now();
 
     await transaction.save();
-    await senderAccount.save();
-    await receiverAccount.save();
 
-    res.status(201).json({
-      message: 'Transfer successful',
-      transaction: {
-        reference: transaction.reference,
-        amount: transaction.amount,
-        receiver: receiver.name,
-        status: transaction.status,
-      },
-      newBalance: senderAccount.balance,
+    // Update balances
+    await senderAccount.deductAmount(amount);
+    await receiverAccount.addAmount(amount);
+
+    // Send response
+    res.status(200).json({
+      success: true,
+      message: 'Money transferred successfully',
+      transaction: transaction.getTransactionSummary(),
     });
+
   } catch (error) {
-    console.error('Transfer error:', error);
-    res.status(500).json({ message: 'Error processing transfer', error: error.message });
+    console.error('❌ Transfer error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Transfer failed',
+      error: error.message,
+    });
   }
 };
 
-// @route   GET /api/transaction/history
-// @desc    Get transaction history for user
-// @access  Private
+// ==================== GET HISTORY ====================
 exports.getHistory = async (req, res) => {
   try {
-    const { page = 1, limit = 20, status } = req.query;
+    const userId = req.user.id.toString();
 
-    let query = {
-      $or: [{ senderId: req.user.id }, { receiverId: req.user.id }],
-    };
+    const transactions = await Transaction.find({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    })
+      .populate('senderId', 'firstName lastName')
+      .populate('receiverId', 'firstName lastName')
+      .sort({ createdAt: -1 });
 
-    if (status) {
-      query.status = status;
-    }
+    const formattedTransactions = transactions.map((txn) => {
+      const senderName = txn.senderId
+        ? `${txn.senderId.firstName} ${txn.senderId.lastName}`
+        : 'Unknown User';
 
-    const skip = (page - 1) * limit;
+      const receiverName = txn.receiverId
+        ? `${txn.receiverId.firstName} ${txn.receiverId.lastName}`
+        : 'Unknown User';
 
-    const transactions = await Transaction.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+      // 🔥 CORRECT SENT / RECEIVED LOGIC
+      const isSent =
+        txn.senderId &&
+        txn.senderId._id.toString() === userId;
 
-    const total = await Transaction.countDocuments(query);
+      return {
+        reference: txn.reference,
+        amount: txn.amount,
+        status: txn.status || 'completed',
+        createdAt: txn.createdAt,
+        senderName,
+        receiverName,
+        isSent,
+      };
+    });
 
     res.status(200).json({
-      message: 'Transaction history retrieved',
-      transactions,
-      pagination: {
-        total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        pages: Math.ceil(total / limit),
-      },
+      success: true,
+      transactions: formattedTransactions,
     });
+
   } catch (error) {
-    console.error('Get history error:', error);
-    res.status(500).json({ message: 'Error retrieving transaction history', error: error.message });
+    console.error('❌ History error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch history',
+    });
   }
 };
 
-// @route   GET /api/transaction/:id
-// @desc    Get transaction details
-// @access  Private
-exports.getTransaction = async (req, res) => {
+// ==================== GET SINGLE TRANSACTION ====================
+exports.getDetails = async (req, res) => {
   try {
-    const transaction = await Transaction.findById(req.params.id);
+    const transaction = await Transaction.findOne({
+      reference: req.params.id,
+    });
 
     if (!transaction) {
-      return res.status(404).json({ message: 'Transaction not found' });
-    }
-
-    // Check if user is sender or receiver
-    if (transaction.senderId.toString() !== req.user.id && transaction.receiverId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to view this transaction' });
+      return res.status(404).json({
+        success: false,
+        message: 'Transaction not found',
+      });
     }
 
     res.status(200).json({
-      message: 'Transaction details retrieved',
-      transaction,
+      success: true,
+      transaction: transaction.getTransactionSummary(),
     });
+
   } catch (error) {
-    console.error('Get transaction error:', error);
-    res.status(500).json({ message: 'Error retrieving transaction', error: error.message });
+    console.error('❌ Fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching transaction',
+    });
   }
 };

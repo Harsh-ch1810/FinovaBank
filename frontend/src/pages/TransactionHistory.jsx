@@ -1,118 +1,156 @@
-import React, { useEffect, useState, useContext } from 'react';
-import API from '../services/api';
-import { AuthContext } from '../context/AuthContext';
+// src/pages/TransactionHistory.jsx - FINAL DYNAMIC VERSION
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { transactionAPI } from '../services/api';
+import "../styles/transaction.css";
 
-
-
-
-const TransactionHistory = () => {
-
-  const { user } = useContext(AuthContext);
-
+export default function TransactionHistory() {
+  const navigate = useNavigate();
+  const { token, getAccountInfo } = useAuth(); // ✅ ADDED
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token, navigate]);
 
-  const fetchTransactions = async () => {
+  // 🔥 AUTO REFRESH (REAL-TIME LIKE BEHAVIOR)
+  useEffect(() => {
+    const loadTransactions = async () => {
+      try {
+        const result = await transactionAPI.getHistory();
+
+        if (result.success && result.transactions) {
+          setTransactions(result.transactions);
+          setError('');
+
+          // ✅ ALSO REFRESH ACCOUNT BALANCE
+          await getAccountInfo();
+        } else {
+          setError(result.message || 'Failed to load transactions');
+        }
+      } catch (err) {
+        setError('Failed to load transactions');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) {
+      loadTransactions();
+
+      // 🔥 POLLING EVERY 5 SECONDS (REAL-TIME EFFECT)
+      const interval = setInterval(loadTransactions, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [token]);
+
+  const formatDate = (date) => {
     try {
-      const res = await API.get('/transaction/history');
-      setTransactions(res.data.transactions || []);
-    } catch (err) {
-      setError('Failed to fetch transactions');
-    } finally {
-      setLoading(false);
+      return new Date(date).toLocaleString('en-IN');
+    } catch {
+      return 'Invalid date';
     }
   };
 
-  if (loading) return <div className="loading">Loading transactions...</div>;
+  // ✅ ICON
+  const getTransactionIcon = (isSent) => {
+    return isSent ? '📤' : '📥';
+  };
+
+  // ✅ LABEL
+  const getTransactionLabel = (isSent) => {
+    return isSent ? 'Sent to' : 'Received from';
+  };
+
+  // ✅ NAME FIX (IMPORTANT)
+  const getOtherPartyName = (txn) => {
+    if (txn.isSent) return txn.receiverName || 'Unknown';
+    return txn.senderName || 'Unknown';
+  };
+
+  // ✅ AMOUNT WITH + / -
+  const getAmountDisplay = (amount, isSent) => {
+    const sign = isSent ? '-' : '+';
+    return `${sign}₹${Number(amount).toLocaleString('en-IN')}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="transactions-container">
+        <h2>📜 Transaction History</h2>
+        <div className="loading">⏳ Loading transactions...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="dashboard-container">
+    <div className="transactions-container">
+      <h2>📜 Transaction History</h2>
 
-      {/* Header */}
-      <div className="dashboard-content">
-        <h1>📝 Transaction History</h1>
-        <p>View all your recent transactions</p>
-      </div>
-
-      {error && <div className="error">{error}</div>}
+      {error && (
+        <div className="error-message">
+          ⚠️ {error}
+        </div>
+      )}
 
       {transactions.length === 0 ? (
-        <div className="empty-history-card">
-          <h3>No transactions yet</h3>
-          <p>Your transaction history will appear here.</p>
+        <div className="no-transactions">
+          <p>No transactions yet</p>
+          <button 
+            className="action-btn"
+            onClick={() => navigate('/transfer')}
+          >
+            💸 Send Money Now
+          </button>
         </div>
       ) : (
-        <div className="transactions-card">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>From / To</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+        <div className="transactions-list">
+          {transactions.map((txn) => (
+            <div 
+              key={txn.reference || txn.id}
+              className="transaction-item"
+            >
+              {/* LEFT */}
+              <div className="txn-left">
+                <div className="txn-header">
+                  <h4>
+                    {getTransactionIcon(txn.isSent)} {getTransactionLabel(txn.isSent)}
+                  </h4>
 
-            <tbody>
-  {transactions.map((tx) => {
-    const isSent = tx.senderId === user?._id;
+                  <span className={`status ${txn.status}`}>
+                    {txn.status}
+                  </span>
+                </div>
 
-    return (
-      <tr key={tx._id}>
-        <td>
-          <div className="tx-date">
-            {new Date(tx.createdAt).toLocaleDateString()}
-          </div>
-          <div className="tx-time">
-            {new Date(tx.createdAt).toLocaleTimeString()}
-          </div>
-        </td>
+                <p className="txn-description">
+                  {getOtherPartyName(txn)}
+                </p>
 
-        <td>
-          <span className={`tx-type ${isSent ? 'sent' : 'received'}`}>
-            {isSent ? 'Sent' : 'Received'}
-          </span>
-        </td>
+                <p className="txn-date">
+                  📅 {formatDate(txn.date || txn.createdAt)}
+                </p>
 
-        <td>
-          <div className="tx-name">
-            <strong>From:</strong> {tx.senderName}
-          </div>
-          <div className="tx-name">
-            <strong>To:</strong> {tx.receiverName}
-          </div>
-          <div className="tx-desc">
-            {tx.description || 'No description'}
-          </div>
-        </td>
+                <p className="txn-reference">
+                  🔑 Ref: {txn.reference || txn.id}
+                </p>
+              </div>
 
-        <td className={`tx-amount ${isSent ? 'amount-negative' : 'amount-positive'}`}>
-          {isSent ? '-' : '+'}₹{tx.amount}
-        </td>
-
-        <td>
-          <span className={`status-badge status-${tx.status.toLowerCase()}`}>
-            {tx.status}
-          </span>
-        </td>
-      </tr>
-    );
-  })}
-</tbody>
-
-
-
-          </table>
+              {/* RIGHT */}
+              <div className="txn-right">
+                <div className="txn-amount">
+                  {getAmountDisplay(txn.amount, txn.isSent)}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
-};
-
-export default TransactionHistory;
+}

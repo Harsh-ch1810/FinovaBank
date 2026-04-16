@@ -1,153 +1,318 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import API from '../services/api';
+// src/pages/ApplyLoan.jsx - CENTERED LAYOUT VERSION
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { accountAPI, loanAPI } from '../services/api';
+import '../styles/applyloan.css';
 
-const ApplyLoan = () => {
-  const { user } = useContext(AuthContext);
-  const [formData, setFormData] = useState({
-    amount: '',
-    monthlyIncome: '',
-    loanReason: '',
-  });
+export default function ApplyLoan() {
+  const navigate = useNavigate();
+  const { token } = useAuth();
+  const [account, setAccount] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [emiInfo, setEmiInfo] = useState(null);
+
+  const [formData, setFormData] = useState({
+    loanType: 'Personal',
+    amount: '',
+    tenureMonths: 12,
+    purpose: '',
+  });
+
+  // Fetch real account info
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    } else {
+      const fetchAccount = async () => {
+        try {
+          const result = await accountAPI.getInfo();
+          if (result.success) {
+            setAccount(result.account);
+          }
+        } catch (err) {
+          console.error('Error fetching account:', err);
+        }
+      };
+      fetchAccount();
+    }
+  }, [token, navigate]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    setError('');
-    setSuccess('');
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'amount' || name === 'tenureMonths' ? parseFloat(value) : value,
+    }));
+    setEmiInfo(null);
+  };
+
+  const handleCalculateEMI = async () => {
+    if (!formData.amount || !formData.tenureMonths) {
+      setError('❌ Please fill amount and tenure');
+      return;
+    }
+
+    try {
+      const result = await loanAPI.calculateEMI(
+        formData.amount,
+        formData.tenureMonths
+      );
+
+      if (result.success) {
+        setEmiInfo(result.emiCalculation);
+        setError('');
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      // Calculate locally if API fails
+      const monthlyRate = 0.09 / 12; // 9% annual
+      const emiAmount =
+        (formData.amount * monthlyRate * Math.pow(1 + monthlyRate, formData.tenureMonths)) /
+        (Math.pow(1 + monthlyRate, formData.tenureMonths) - 1);
+
+      const totalPayable = emiAmount * formData.tenureMonths;
+      const totalInterest = totalPayable - formData.amount;
+
+      setEmiInfo({
+        amount: formData.amount,
+        interestRate: 9,
+        tenureMonths: formData.tenureMonths,
+        monthlyEMI: Math.round(emiAmount),
+        totalInterest: Math.round(totalInterest),
+        totalPayable: Math.round(totalPayable),
+      });
+      setError('');
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setSuccess('');
+    setLoading(true);
 
-    // Validation
-    if (!formData.amount || !formData.monthlyIncome || !formData.loanReason) {
-      setError('Please fill in all fields');
+    if (!formData.amount || !formData.tenureMonths || !formData.purpose) {
+      setError('❌ Please fill all required fields');
       setLoading(false);
       return;
     }
 
-    const amount = parseFloat(formData.amount);
-    const income = parseFloat(formData.monthlyIncome);
-
-    if (amount < 1000 || amount > 1000000) {
-      setError('Loan amount must be between $1,000 and $1,000,000');
+    if (formData.amount < 10000) {
+      setError('❌ Minimum loan amount is ₹10,000');
       setLoading(false);
       return;
     }
 
-    if (income <= 0) {
-      setError('Monthly income must be greater than 0');
+    if (formData.amount > 5000000) {
+      setError('❌ Maximum loan amount is ₹50,00,000');
       setLoading(false);
       return;
     }
 
     try {
-      const response = await API.post('/api/loan/apply', {
-        amount: amount,
-        monthlyIncome: income,
-        loanReason: formData.loanReason,
-      });
+      const result = await loanAPI.applyLoan(
+        formData.loanType,
+        formData.amount,
+        formData.tenureMonths,
+        formData.purpose
+      );
 
-      setSuccess('Loan application submitted successfully! Check your loans to see status.');
-      setFormData({
-        amount: '',
-        monthlyIncome: '',
-        loanReason: '',
-      });
+      if (result.success) {
+        setSuccess(`✅ Loan application submitted successfully!\nApplication ID: ${result.loan.id}`);
+        setFormData({
+          loanType: 'Personal',
+          amount: '',
+          tenureMonths: 12,
+          purpose: '',
+        });
+        setEmiInfo(null);
 
-      // Redirect after success
-      setTimeout(() => {
-        window.location.href = '/my-loans';
-      }, 2000);
+        setTimeout(() => {
+          navigate('/my-loans');
+        }, 2000);
+      } else {
+        setError('❌ ' + result.message);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to apply for loan');
+      setError('❌ Failed to apply for loan. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const loanTypes = ['Personal', 'Home', 'Vehicle', 'Education'];
+  const tenureOptions = [6, 12, 24, 36, 48, 60];
+
+  const interestRates = {
+    Personal: 9,
+    Home: 6.5,
+    Vehicle: 7.5,
+    Education: 6,
+  };
+
   return (
     <div className="loan-container">
-      <div className="loan-box">
-        <div className="loan-form">
-          <h1>📊 Apply for Loan</h1>
-          <p>Quick and easy loan application</p>
+      {/* Header */}
+      <div className="loan-header">
+        <h1>💰 Apply for Loan</h1>
+        <p>Get the funds you need with flexible repayment options</p>
+      </div>
 
-          {error && <div className="error">{error}</div>}
-          {success && <div className="success">{success}</div>}
+      {/* Alerts */}
+      {error && <div className="alert alert-error">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Loan Amount</label>
-              <input
-                type="number"
-                name="amount"
-                placeholder="50000"
-                min="1000"
-                max="1000000"
-                step="1000"
-                value={formData.amount}
-                onChange={handleChange}
-                required
-              />
-              <small>Min: ₹1,000 | Max: ₹1,000,000</small>
-            </div>
+      {/* Main Content */}
+      <div className="loan-card">
+        {/* Account Balance */}
+        {account && (
+          <div className="balance-info">
+            <p>Available Balance: <strong>₹{account.balance.toLocaleString('en-IN')}</strong></p>
+          </div>
+        )}
 
-            <div className="form-group">
-              <label>Monthly Income</label>
-              <input
-                type="number"
-                name="monthlyIncome"
-                placeholder="5000"
-                step="100"
-                min="0"
-                value={formData.monthlyIncome}
-                onChange={handleChange}
-                required
-              />
-              <small>Your monthly income (used to calculate debt ratio)</small>
-            </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="loan-form">
+          {/* Loan Type */}
+          <div className="form-group">
+            <label>Loan Type *</label>
+            <select
+              name="loanType"
+              value={formData.loanType}
+              onChange={handleChange}
+            >
+              {loanTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type} Loan {interestRates[type]}% p.a.
+                </option>
+              ))}
+            </select>
+          </div>
 
-            <div className="form-group">
-              <label>Reason for Loan</label>
-              <textarea
-                name="loanReason"
-                placeholder="Tell us why you need this loan..."
-                rows="4"
-                value={formData.loanReason}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          {/* Amount */}
+          <div className="form-group">
+            <label>Loan Amount (₹) *</label>
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              placeholder="100000"
+              min="10000"
+              step="1000"
+            />
+            <small>Min: ₹10,000 | Max: ₹50,00,000</small>
+          </div>
 
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'Applying...' : 'Apply for Loan'}
+          {/* Tenure */}
+          <div className="form-group">
+            <label>Loan Tenure (Months) *</label>
+            <select
+              name="tenureMonths"
+              value={formData.tenureMonths}
+              onChange={handleChange}
+            >
+              {tenureOptions.map((months) => (
+                <option key={months} value={months}>
+                  {months} months
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Purpose */}
+          <div className="form-group">
+            <label>Purpose *</label>
+            <textarea
+              name="purpose"
+              value={formData.purpose}
+              onChange={handleChange}
+              placeholder="What do you need this loan for?"
+              rows="4"
+              maxLength="500"
+            ></textarea>
+            <small>{formData.purpose.length}/500 characters</small>
+          </div>
+
+          {/* Buttons */}
+          <div className="form-buttons">
+            <button
+              type="button"
+              className="btn-calculate"
+              onClick={handleCalculateEMI}
+              disabled={!formData.amount || !formData.tenureMonths}
+            >
+              📊 Calculate EMI
             </button>
-          </form>
+            <button
+              type="submit"
+              className="btn-apply"
+              disabled={loading || !formData.amount || !formData.tenureMonths || !formData.purpose}
+            >
+              {loading ? '⏳ Applying...' : '✅ Apply for Loan'}
+            </button>
+          </div>
+        </form>
 
-          <div className="loan-info">
-            <h3>ℹ️ Loan Information</h3>
-            <ul>
-              <li><strong>Processing:</strong> Applications are reviewed within 24 hours</li>
-              <li><strong>Requirements:</strong> Minimum monthly income of ₹1,000</li>
-              <li><strong>Debt Ratio:</strong> Maximum debt-to-income ratio of 50%</li>
-              <li><strong>Terms:</strong> Loans range from ₹1,000 to ₹1,000,000</li>
-              <li><strong>Approval:</strong> Admin will contact you once approved</li>
-            </ul>
+        {/* EMI Information */}
+        {emiInfo && (
+          <div className="emi-info">
+            <h3>💡 Loan Calculation</h3>
+            <div className="emi-detail">
+              <div className="emi-row">
+                <span className="label">Loan Amount:</span>
+                <span className="value">₹{emiInfo.amount.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="emi-row">
+                <span className="label">Interest Rate:</span>
+                <span className="value">{emiInfo.interestRate}% p.a.</span>
+              </div>
+              <div className="emi-row">
+                <span className="label">Tenure:</span>
+                <span className="value">{emiInfo.tenureMonths} months</span>
+              </div>
+              <div className="emi-row highlight">
+                <span className="label">Monthly EMI:</span>
+                <span className="value">₹{emiInfo.monthlyEMI.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="emi-row">
+                <span className="label">Total Interest:</span>
+                <span className="value">₹{emiInfo.totalInterest.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="emi-row highlight">
+                <span className="label">Total Payable:</span>
+                <span className="value">₹{emiInfo.totalPayable.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Info Section */}
+      <div className="loan-info">
+        <div className="info-row">
+          <div className="info-card">
+            <h4>✓ Quick Approval</h4>
+            <p>Get approved in minutes</p>
+          </div>
+          <div className="info-card">
+            <h4>📅 Flexible Terms</h4>
+            <p>6 to 60 months tenure</p>
+          </div>
+          <div className="info-card">
+            <h4>💰 Easy Repayment</h4>
+            <p>Affordable EMI options</p>
+          </div>
+          <div className="info-card">
+            <h4>🔒 Secure</h4>
+            <p>Bank-level encryption</p>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default ApplyLoan;
+}
